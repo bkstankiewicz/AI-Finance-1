@@ -58,6 +58,24 @@ def parse_arguments():
         description="Calculate the profit and loss (P&L) for different types of trades."
     )
     subparsers = parser.add_subparsers(dest="asset_class", required=True)
+    """
+    Equity:
+     - Instrument: A name of the financial instrument (e.g., "INTC" for Intel Corporation).
+     - Quantity: The number of shares or contracts involved in the trade.
+     - Entry price: The price was entered.
+     - Current price: The current market price of the instrument.
+
+    Bond:
+     - Bond name: A name of the bond (e.g., "Poland 10Y").
+     - Position size: The number of bonds held.
+     - Bond price: The current price of the bond (expressed as a percentage of face value).
+     - Face value: The nominal value of the bond (the amount paid back at maturity).
+
+    FX:
+     - Currency pair: The currency pair being traded (e.g., "EUR/USD").
+     - Notional source: The notional amount in the source currency (the first currency in the pair).
+     - Spot rate: The current exchange rate for the currency pair.
+    """
 
     subparser_args = {
     "equity": [
@@ -73,7 +91,7 @@ def parse_arguments():
         ("face_value", float, "Face value of the bond"),
         ],
     "fx": [
-        ("currency_pair", str, "Currency pair e.g. EUR/USD"),
+        ("--currency_pair", str, "Currency pair e.g. EUR/USD"),
         ("notional_source", float, "Notional in source currency"),
         ("spot_rate", float, "Spot rate"),
         ],
@@ -94,7 +112,7 @@ if __name__ == "__main__":
         "fx": fx_trade,
     }
 
-    use_defaults = len(sys.argv) == 1
+    use_defaults = False if len(sys.argv) == 1 else True
 
     if use_defaults:
         print("[INFO] Used default values.\n")
