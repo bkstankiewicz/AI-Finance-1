@@ -91,7 +91,7 @@ def parse_arguments():
         ("face_value", float, "Face value of the bond"),
         ],
     "fx": [
-        ("--currency_pair", str, "Currency pair e.g. EUR/USD"),
+        ("currency_pair", str, "Currency pair e.g. EUR/USD"),
         ("notional_source", float, "Notional in source currency"),
         ("spot_rate", float, "Spot rate"),
         ],
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         "fx": fx_trade,
     }
 
-    use_defaults = False if len(sys.argv) == 1 else True
+    use_defaults = True if len(sys.argv) == 1 else False
 
     if use_defaults:
         print("[INFO] Used default values.\n")
