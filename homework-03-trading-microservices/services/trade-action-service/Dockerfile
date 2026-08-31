@@ -1,13 +1,15 @@
 FROM python:3.10-slim
 
-WORKDIR /app
+WORKDIR /home/app
 
-COPY requirements.txt .
+COPY services/trade-action-service/requirements.txt services/trade-action-service/requirements.txt
+RUN pip install --no-cache-dir -r services/trade-action-service/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY shared shared
+COPY services/trade-action-service/app services/trade-action-service/app
 
-COPY app.py .
+WORKDIR /home/app/services/trade-action-service/app
 
 EXPOSE 8008
 
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

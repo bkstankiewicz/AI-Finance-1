@@ -48,8 +48,12 @@ class TradeActionProcessor:
             self.log.exception("validation_error_close_trade")
             return
 
-        close_data = action
-        close_data["status"] = "CLOSED"
+        close_data = {
+            "status": "CLOSED",
+            "close_price": action.get("close_price"),
+            "close_reason": action.get("close_reason"),
+            "closed_at": action.get("closed_at"),
+        }
         closed = self.repository.close_trade_if_active(action["trade_id"], close_data)
         if not closed:
             self.log.warning("close_trade_rejected_not_active", trade_id=action["trade_id"])

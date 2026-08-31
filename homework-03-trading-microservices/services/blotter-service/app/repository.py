@@ -95,8 +95,6 @@ class BlotterRepository:
 
                 trade_id = str(record.trade_id)
                 cached = self.latest_valuations_cache.get(trade_id)
-                if cached is None:
-                    return {"error": "No valuation found for the given trade_id"}
 
                 trade = {
                     "trade_id": str(record.trade_id),

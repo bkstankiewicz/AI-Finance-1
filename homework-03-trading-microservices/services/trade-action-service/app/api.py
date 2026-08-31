@@ -28,7 +28,7 @@ class TradeActionApi(Bottle):
             response.status = 202
             return {"message": "Trade action queued successfully"}
         except Exception as e:
-            response.status = 404
+            response.status = 500
             return {"error": f"Failed to queue trade action: {str(e)}"}
     
     def trade_actions_batch(self):
@@ -43,7 +43,7 @@ class TradeActionApi(Bottle):
             response.status = 202
             return {"message": "Trade actions queued successfully"}
         except Exception as e:
-            response.status = 404
+            response.status = 500
             return {"error": f"Failed to queue trade action: {str(e)}"}
 
     def queue_status(self):

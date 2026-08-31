@@ -1,13 +1,15 @@
 FROM python:3.10-slim
 
-WORKDIR /app
+WORKDIR /home/app
 
-COPY requirements.txt .
+COPY services/market-data-service/requirements.txt services/market-data-service/requirements.txt
+RUN pip install --no-cache-dir -r services/market-data-service/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY shared shared
+COPY services/market-data-service/app services/market-data-service/app
 
-COPY app.py .
+WORKDIR /home/app/services/market-data-service/app
 
 EXPOSE 8001
 
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

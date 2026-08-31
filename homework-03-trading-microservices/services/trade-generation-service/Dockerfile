@@ -1,13 +1,15 @@
 FROM python:3.10-slim
 
-WORKDIR /app
+WORKDIR /home/app
 
-COPY requirements.txt .
+COPY services/trade-generation-service/requirements.txt services/trade-generation-service/requirements.txt
+RUN pip install --no-cache-dir -r services/trade-generation-service/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY shared shared
+COPY services/trade-generation-service/app services/trade-generation-service/app
 
-COPY app.py .
+WORKDIR /home/app/services/trade-generation-service/app
 
 EXPOSE 8007
 
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

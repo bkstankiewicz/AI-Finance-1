@@ -1,0 +1,112 @@
+services:
+
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=trading
+      - POSTGRES_PASSWORD=trading
+      - POSTGRES_DB=trading
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  market-data-service:
+    build:
+      context: .
+      dockerfile: services/market-data-service/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
+    depends_on:
+      - db
+
+  pricing-service:
+    build:
+      context: .
+      dockerfile: services/pricing-service/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - STREAM_URL=http://market-data-service:8001/stream
+      - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
+    depends_on:
+      - market-data-service
+      - db
+
+  books-service:
+    build:
+      context: .
+      dockerfile: services/books-service/Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
+    depends_on:
+      - db
+
+  blotter-service:
+    build:
+      context: .
+      dockerfile: services/blotter-service/Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      - STREAM_URL=http://pricing-service:8002/valuation-stream
+      - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
+    depends_on:
+      - pricing-service
+      - db
+
+  trade-action-service:
+    build:
+      context: .
+      dockerfile: services/trade-action-service/Dockerfile
+    ports:
+      - "8008:8008"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
+    depends_on:
+      - db
+
+  trade-generation-service:
+    build:
+      context: .
+      dockerfile: services/trade-generation-service/Dockerfile
+    ports:
+      - "8007:8007"
+    environment:
+      - STREAM_URL=http://market-data-service:8001/stream
+      - GET_BOOKS_URL=http://books-service:8004/books
+      - GET_ACTIVE_TRADES_URL=http://blotter-service:8006/trades?status=ACTIVE&limit=20
+      - TRADE_ACTION_URL=http://trade-action-service:8008/trade-actions
+    depends_on:
+      - market-data-service
+      - books-service
+      - blotter-service
+      - trade-action-service
+
+  monitoring-service:
+    build:
+      context: .
+      dockerfile: services/monitoring_service/Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - MARKET_DATA_HEALTH_URL=http://market-data-service:8001/health
+      - PRICING_HEALTH_URL=http://pricing-service:8002/health
+      - BOOKS_HEALTH_URL=http://books-service:8004/health
+      - TRADE_ACTION_HEALTH_URL=http://trade-action-service:8008/health
+      - TRADE_GENERATION_HEALTH_URL=http://trade-generation-service:8007/health
+      - BLOTTER_HEALTH_URL=http://blotter-service:8006/health
+    depends_on:
+      - market-data-service
+      - pricing-service
+      - books-service
+      - trade-action-service
+      - trade-generation-service
+      - blotter-service
+
+volumes:
+  db_data:

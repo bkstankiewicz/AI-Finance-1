@@ -1,13 +1,15 @@
 FROM python:3.10-slim
 
-WORKDIR /app
+WORKDIR /home/app
 
-COPY requirements.txt .
+COPY services/monitoring_service/requirements.txt services/monitoring_service/requirements.txt
+RUN pip install --no-cache-dir -r services/monitoring_service/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY shared shared
+COPY services/monitoring_service/app services/monitoring_service/app
 
-COPY app.py .
+WORKDIR /home/app/services/monitoring_service/app
 
 EXPOSE 8003
 
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

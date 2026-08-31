@@ -1,13 +1,15 @@
 FROM python:3.10-slim
 
-WORKDIR /app
+WORKDIR /home/app
 
-COPY requirements.txt .
+COPY services/pricing-service/requirements.txt services/pricing-service/requirements.txt
+RUN pip install --no-cache-dir -r services/pricing-service/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY shared shared
+COPY services/pricing-service/app services/pricing-service/app
 
-COPY app.py .
+WORKDIR /home/app/services/pricing-service/app
 
 EXPOSE 8002
 
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
