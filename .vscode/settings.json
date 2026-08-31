@@ -1,0 +1,18 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "trading-local",
+            "database": "trading",
+            "username": "trading"
+        }
+    ],
+    "chat.tools.terminal.autoApprove": {
+        "&": true,
+        "alembic": true
+    }
+}
