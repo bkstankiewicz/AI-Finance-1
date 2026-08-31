@@ -1,11 +1,12 @@
 import structlog
+from config import SERVICE_NAME
 
 VALID_ASSET_CLASSES = ["EQUITY", "BOND", "FX", "COMMODITY", "FUTURES"]
 
 
 class BooksService:
     def __init__(self, books_repository):
-        self.log = structlog.get_logger().bind(service="books-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
         self.books_repository = books_repository
 
     def get_all_books(self):

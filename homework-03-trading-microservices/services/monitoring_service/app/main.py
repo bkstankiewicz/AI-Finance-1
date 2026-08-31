@@ -4,14 +4,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from concurrent.futures import ThreadPoolExecutor
 from shared.trading_shared.bottle_server import run_server
-from config import HOST, PORT, SERVICE_URLS, MONITORING_INTERVAL
+from config import HOST, PORT, SERVICE_URLS, MONITORING_INTERVAL, SERVICE_NAME
 from monitor import Monitor
 from api import MonitoringServiceApi
 import threading
 import time
 import structlog
 
-log = structlog.get_logger().bind(service="monitoring-service")
+log = structlog.get_logger().bind(service=SERVICE_NAME)
 
 
 def monitoring_service(monitor, executor):

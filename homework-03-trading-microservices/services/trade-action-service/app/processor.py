@@ -1,9 +1,10 @@
 import queue
 import structlog
+from config import SERVICE_NAME
 
 class TradeActionProcessor:
     def __init__(self, trade_validation, trade_queue, repository):
-        self.log = structlog.get_logger().bind(service="trade-action-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
         self.validation = trade_validation
         self.action_queue = trade_queue
         self.repository = repository

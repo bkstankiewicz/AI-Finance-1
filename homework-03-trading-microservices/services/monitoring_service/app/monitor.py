@@ -2,14 +2,14 @@ import datetime
 import urllib.request
 import time
 import structlog
-from config import SERVICE_UP, SERVICE_DOWN
+from config import SERVICE_UP, SERVICE_DOWN, SERVICE_NAME
 
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 urllib.request.install_opener(opener)
 
 class Monitor:
     def __init__(self):
-        self.log = structlog.get_logger().bind(service="monitoring-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
         self.status = {}
 
     def check_service(self, service_name: str, service_url: str):

@@ -1,9 +1,10 @@
 import structlog
+from config import SERVICE_NAME
 
 
 class PnLService():
     def __init__(self, valuation_engine):
-        self.log = structlog.get_logger().bind(service="pricing-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
         self.valuation_engine = valuation_engine
         self.multiplier = 1.0
 

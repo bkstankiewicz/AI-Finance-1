@@ -1,7 +1,7 @@
 import json
 import urllib.request
 import structlog
-from config import GET_BOOKS_URL
+from config import GET_BOOKS_URL, SERVICE_NAME
 
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
@@ -9,7 +9,7 @@ opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 class TradeGeneratorBookClient:
     def __init__(self):
         self.books_cache = []
-        self.log = structlog.get_logger().bind(service="trade-generation-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
 
     def get_books(self):
         """Fetch the list of books from the books-service"""

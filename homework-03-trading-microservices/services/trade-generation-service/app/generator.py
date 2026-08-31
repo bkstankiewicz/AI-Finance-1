@@ -2,6 +2,7 @@ import random
 import uuid
 import datetime
 import structlog
+from config import SERVICE_NAME
 
 
 class TradeGenerator:
@@ -9,7 +10,7 @@ class TradeGenerator:
         self.market_data_client = market_data_client
         self.book_client = book_client
         self.blotter_client = blotter_client
-        self.log = structlog.get_logger().bind(service="trade-generation-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
 
     def trade_in(self):
         """Generate a trade with random parameters"""

@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from sqlalchemy import func
 from shared.trading_shared.db import SessionFactory
-from shared.trading_shared.models import Books, Trades, Valuations
+from shared.trading_shared.models import Books, Trades, Valuations, AuditLogs
 
 
 class BlotterRepository:
@@ -144,7 +144,16 @@ class BlotterRepository:
                     "unrealized_pnl": float(valuation.unrealized_pnl)
                 })
 
-            # TODO: Add get Audit Logs
+            audit_logs_results = []
+            audit_logs = session.query(AuditLogs).filter(AuditLogs.entity_id == trade_id).order_by(AuditLogs.created_at.desc()).all()
+
+            for log in audit_logs:
+                audit_logs_results.append({
+                    "created_at": log.created_at.isoformat() if log.created_at else None,
+                    "service_name": log.service_name,
+                    "event_type": log.event_type,
+                    "message": log.message
+                })
 
             results = {
                 "trade": {
@@ -164,7 +173,8 @@ class BlotterRepository:
                     "total_pnl": float(latest_valuation["total_pnl"]) if latest_valuation else 0.0,
                     "source": latest_valuation.get("source") if latest_valuation else None,
                 },
-                "valuation_history": valuation_history_results
+                "valuation_history": valuation_history_results,
+                "audit_logs": audit_logs_results
             }
 
         return results
@@ -187,6 +197,20 @@ class BlotterRepository:
         return results
 
     def get_trades_audit_logs(self, trade_id):
-        results = {}
+        results = []
 
-        return results
+        with SessionFactory() as session:
+            audit_logs = session.query(AuditLogs).filter(AuditLogs.entity_id == trade_id).order_by(AuditLogs.created_at.desc()).all()
+            for log in audit_logs:
+                results.append({
+                    "service_name": log.service_name,
+                    "event_type": log.event_type,
+                    "entity_type": log.entity_type,
+                    "entity_id": log.entity_id,
+                    "severity": log.severity,
+                    "message": log.message,
+                    "created_at": log.created_at.isoformat() if log.created_at else None,
+                    "payload": log.payload
+                })
+
+        return {"audit_logs": results}

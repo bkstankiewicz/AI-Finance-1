@@ -2,10 +2,11 @@ import json
 import threading
 import queue
 import structlog
+from config import SERVICE_NAME
 
 class Publisher:
     def __init__(self):
-        self.log = structlog.get_logger().bind(service="market-data-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
         self.subscribers = []
         self.lock = threading.Lock()
 

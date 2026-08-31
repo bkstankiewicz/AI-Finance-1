@@ -7,7 +7,7 @@ import time
 import structlog
 from shared.trading_shared.bottle_server import run_server
 
-from config import HOST, PORT
+from config import HOST, PORT, SERVICE_NAME
 from api import TradeGeneratorApi
 from generator import TradeGenerator
 from action_client import TradeGeneratorActionClient
@@ -15,7 +15,7 @@ from book_client import TradeGeneratorBookClient
 from market_data_client import MarketDataClient
 from blotter_client import TradeGeneratorBlotterClient
 
-log = structlog.get_logger().bind(service="trade-generation-service")
+log = structlog.get_logger().bind(service=SERVICE_NAME)
 
 
 def generation_loop(generator, action_client):

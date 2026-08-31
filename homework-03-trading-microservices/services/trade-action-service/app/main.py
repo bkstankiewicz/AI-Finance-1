@@ -5,14 +5,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 import threading
 from shared.trading_shared.bottle_server import run_server
 import structlog
-from config import HOST, PORT
+from config import HOST, PORT, SERVICE_NAME
 from api import TradeActionApi
 from action_queue import TradeActionQueue
 from processor import TradeActionProcessor
 from repository import TradeActionRepository
 from validation import TradeActionValidation
 
-log = structlog.get_logger().bind(service="trade-action-service")
+log = structlog.get_logger().bind(service=SERVICE_NAME)
 
 
 def worker_loop(processor: TradeActionProcessor):

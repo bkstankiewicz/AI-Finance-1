@@ -2,10 +2,11 @@ import random
 import threading
 import datetime
 import structlog
+from config import SERVICE_NAME
 
 class Generator:
     def __init__(self, event_id):
-        self.log = structlog.get_logger().bind(service="market-data-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
         self.last_equity_price = 100.0
         self.last_fixed_income_price = 100.0
         self.last_forex_spot = 1.2

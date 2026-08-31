@@ -46,6 +46,7 @@ class TradeActionRepository:
                  trade_metadata=trade_data.get("trade_metadata")
             )
             session.add(record)
+            session.flush()  # populate record.trade_id (Python-side default) before it's used below
 
             log_data = build_audit_log(
                 event_type=AuditEventType.TRADE_OPENED,

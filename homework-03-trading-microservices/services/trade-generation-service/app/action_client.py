@@ -2,7 +2,7 @@ import json
 import urllib.request
 import structlog
 import threading
-from config import TRADE_ACTION_URL
+from config import TRADE_ACTION_URL, SERVICE_NAME
 
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 urllib.request.install_opener(opener)
@@ -13,7 +13,7 @@ class TradeGeneratorActionClient:
         self.lock = threading.Lock()
         self.running = False
         self.count = 0
-        self.log = structlog.get_logger().bind(service="trade-generation-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
 
     def push_trade(self, trade_data):
         """Push a trade to the trade-action-service, unless generation is stopped"""

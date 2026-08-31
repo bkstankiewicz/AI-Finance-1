@@ -14,9 +14,9 @@ from market_data_client import MarketDataClient
 from persistence import Persistence
 from valuation_engine import ValuationEngine
 from pnl import PnLService
-from config import HOST, PORT, VALUATION_INTERVAL
+from config import HOST, PORT, VALUATION_INTERVAL, SERVICE_NAME
 
-log = structlog.get_logger().bind(service="pricing-service")
+log = structlog.get_logger().bind(service=SERVICE_NAME)
 
 
 ASSET_CLASSES = ["EQUITY", "BOND", "FX", "COMMODITY", "FUTURES"]

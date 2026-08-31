@@ -2,7 +2,7 @@ import json
 import random
 import urllib.request
 import structlog
-from config import GET_ACTIVE_TRADES_URL
+from config import GET_ACTIVE_TRADES_URL, SERVICE_NAME
 
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
@@ -10,7 +10,7 @@ opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 class TradeGeneratorBlotterClient:
     def __init__(self):
         self.trade_cache = []
-        self.log = structlog.get_logger().bind(service="trade-generation-service")
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
 
     def get_active_trades(self):
         """Fetch the list of last 20 active trades from the blotter-service"""

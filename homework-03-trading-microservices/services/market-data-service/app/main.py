@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 from shared.trading_shared.bottle_server import run_server
 
 from api import MarketDataApi
-from config import HOST, PORT, TICK_INTERVAL
+from config import HOST, PORT, TICK_INTERVAL, SERVICE_NAME
 from generator import Generator
 from publisher import Publisher
 from persistence import Persistence
@@ -17,7 +17,7 @@ import threading
 import traceback
 import structlog
 
-log = structlog.get_logger().bind(service="market-data-service")
+log = structlog.get_logger().bind(service=SERVICE_NAME)
 
 
 def market_data_service(generator, executor, publisher, persistence, latest_data: dict):
