@@ -13,6 +13,18 @@
     ],
     "chat.tools.terminal.autoApprove": {
         "&": true,
-        "alembic": true
+        "alembic": true,
+        "/^docker compose -f \"homework-03-trading-microservices\\\\docker-compose\\.yml\" restart trade-generation-service$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^docker compose -f \"homework-03-trading-microservices\\\\docker-compose\\.yml\" logs --no-color --tail=200 trade-generation-service \\| Select-String \"generated_\\|trade_pushed\\|error\\|no_active\\|service_started\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^docker compose -f \"homework-03-trading-microservices\\\\docker-compose\\.yml\" up -d --build trade-generation-service$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

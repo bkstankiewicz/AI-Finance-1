@@ -1,2 +1,4 @@
 bottle==0.13.4
 structlog==26.1.0
+SQLAlchemy==2.0.51
+psycopg[binary]==3.3.4

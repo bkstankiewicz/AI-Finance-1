@@ -20,7 +20,6 @@ class BooksServiceApi(Bottle):
         }
         return health_status
 
-
     def book_to_dict(self, book) -> dict:
         return {
             "book_id": str(book.book_id),

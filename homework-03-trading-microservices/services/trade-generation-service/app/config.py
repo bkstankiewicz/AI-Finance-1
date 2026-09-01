@@ -11,3 +11,4 @@ GET_ACTIVE_TRADES_URL = os.environ.get('GET_ACTIVE_TRADES_URL', 'http://localhos
 TRADE_ACTION_URL = os.environ.get('TRADE_ACTION_URL', 'http://localhost:8008/trade-actions')
 
 RECONNECTING_INTERVAL = int(os.environ.get('RECONNECTING_INTERVAL', 1))
+GENERATION_INTERVAL = float(os.environ.get('GENERATION_INTERVAL', 10.0))

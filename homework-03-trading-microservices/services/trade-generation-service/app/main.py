@@ -7,7 +7,7 @@ import time
 import structlog
 from shared.trading_shared.bottle_server import run_server
 
-from config import HOST, PORT, SERVICE_NAME
+from config import HOST, PORT, SERVICE_NAME, GENERATION_INTERVAL
 from api import TradeGeneratorApi
 from generator import TradeGenerator
 from action_client import TradeGeneratorActionClient
@@ -26,7 +26,7 @@ def generation_loop(generator, action_client):
                 action_client.push_trade(trade_data)
         except Exception:
             log.exception("error_generating_trade")
-        time.sleep(0.5)
+        time.sleep(GENERATION_INTERVAL)
 
 
 if __name__ == '__main__':

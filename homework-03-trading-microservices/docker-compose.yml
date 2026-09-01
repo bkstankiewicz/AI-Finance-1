@@ -10,6 +10,21 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trading -d trading"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: db/Dockerfile
+    environment:
+      - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
+    depends_on:
+      db:
+        condition: service_healthy
 
   market-data-service:
     build:
@@ -20,7 +35,8 @@ services:
     environment:
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
-      - db
+      migrate:
+        condition: service_completed_successfully
 
   pricing-service:
     build:
@@ -32,8 +48,10 @@ services:
       - STREAM_URL=http://market-data-service:8001/stream
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
-      - market-data-service
-      - db
+      market-data-service:
+        condition: service_started
+      migrate:
+        condition: service_completed_successfully
 
   books-service:
     build:
@@ -44,7 +62,8 @@ services:
     environment:
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
-      - db
+      migrate:
+        condition: service_completed_successfully
 
   blotter-service:
     build:
@@ -56,8 +75,10 @@ services:
       - STREAM_URL=http://pricing-service:8002/valuation-stream
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
-      - pricing-service
-      - db
+      pricing-service:
+        condition: service_started
+      migrate:
+        condition: service_completed_successfully
 
   trade-action-service:
     build:
@@ -68,7 +89,8 @@ services:
     environment:
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
-      - db
+      migrate:
+        condition: service_completed_successfully
 
   trade-generation-service:
     build:
@@ -81,6 +103,7 @@ services:
       - GET_BOOKS_URL=http://books-service:8004/books
       - GET_ACTIVE_TRADES_URL=http://blotter-service:8006/trades?status=ACTIVE&limit=20
       - TRADE_ACTION_URL=http://trade-action-service:8008/trade-actions
+      - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
       - market-data-service
       - books-service
