@@ -9,7 +9,8 @@ class TradeGeneratorApi(Bottle):
         self.route('/start', method='POST', callback=self.start)
         self.route('/stop', method='POST', callback=self.stop)
         self.route('/status', method='GET', callback=self.status)
-
+        self.route('/configs', method='GET', callback=self.get_configs)
+        self.route('/configs', method='POST', callback=self.configs)
 
     def health(self):
         """Health check requested"""
@@ -19,24 +20,20 @@ class TradeGeneratorApi(Bottle):
         }
         return health_status
 
-
     def generate_once(self):
         """Generate a single trade"""
         self.generation_status.generate_once()
         return {"message": "Trade generation once requested"}
-
 
     def start(self):
         """Start generating trades continuously"""
         self.generation_status.start()
         return {"message": "Trade generation started"}
 
-
     def stop(self):
         """Stop generating trades continuously"""
         self.generation_status.stop()
         return {"message": "Trade generation stopped"}
-
 
     def status(self):
         """Get the current status of the trade generation service"""
@@ -45,3 +42,20 @@ class TradeGeneratorApi(Bottle):
             "status": "running" if self.generation_status.is_running() else "stopped"
         }
         return status
+
+    def get_configs(self):
+        """Get the current trade generation configurations"""
+        return {"configs": self.generation_status.get_configs()}
+
+    def configs(self):
+        """Update the trade generation service configurations"""
+        config_data = request.json
+        if not isinstance(config_data, dict):
+            response.status = 400
+            return {"error": "Request body must be a JSON object"}
+        try:
+            configs = self.generation_status.update_configs(config_data)
+        except ValueError as e:
+            response.status = 400
+            return {"error": str(e)}
+        return {"message": "Trade generation service configurations updated", "configs": configs}

@@ -1,0 +1,36 @@
+@use '../styles/variables' as *;
+
+@mixin tone($c) {
+  border-left-color: $c;
+  background: color-mix(in srgb, #{$c} 10%, transparent);
+
+  strong {
+    color: $c;
+  }
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: $gap;
+  padding: 10px 14px;
+  border: 1px solid $color-border;
+  border-left-width: 4px;
+  border-radius: $radius;
+  font-size: 0.875rem;
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+  }
+
+  &__text {
+    color: $color-text;
+  }
+
+  &--error { @include tone($color-down); }
+  &--warning { @include tone($color-warn); }
+  &--info { @include tone($color-accent); }
+}

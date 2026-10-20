@@ -2,15 +2,18 @@ import { useState } from 'react'
 import DataTable from '../../components/DataTable.jsx'
 import Panel from '../../components/Panel.jsx'
 import StatusBadge from '../../components/StatusBadge.jsx'
+import QueryNotice from '../../components/QueryNotice.jsx'
+import TableFilters, { NoMatches } from '../../components/TableFilters.jsx'
 import usePolling from '../../hooks/usePolling.js'
 import usePersistentState from '../../hooks/usePersistentState.js'
+import useTableView from '../../hooks/useTableView.js'
 import { deleteBook, getBooks } from '../../api/books.js'
 import { shortId } from '../../utils/format.js'
 import BookDetails from './BookDetails.jsx'
 import BookForm from './BookForm.jsx'
 
 export default function BooksPage() {
-  const { data: books, error, reload } = usePolling(getBooks)
+  const { data: books, error, loading, updatedAt, reload } = usePolling(getBooks)
   const [selectedId, setSelectedId] = usePersistentState('books.selectedId', null)
   const [editedId, setEditedId] = useState(null)
   const [actionError, setActionError] = useState(null)
@@ -25,17 +28,20 @@ export default function BooksPage() {
       await deleteBook(book.book_id)
       reload()
     } catch (err) {
-      setActionError(`Delete failed: ${err.message}`)
+      setActionError(err.kind === 'unavailable' ? 'Delete failed: Books Service is down or unreachable.' : `Delete failed: ${err.message}`)
     }
   }
 
   const columns = [
-    { key: 'name', label: 'Book Name' },
-    { key: 'book_id', label: 'Book ID', format: shortId },
-    { key: 'expected_asset_class', label: 'Asset Class' },
+    { key: 'name', label: 'Book Name', sortable: true },
+    { key: 'book_id', label: 'Book ID', sortable: true, format: shortId },
+    { key: 'expected_asset_class', label: 'Asset Class', sortable: true, filter: 'text' },
     {
       key: 'is_active',
       label: 'Status',
+      sortable: true,
+      filter: 'prefix',
+      value: (row) => (row.is_active ? 'ACTIVE' : 'INACTIVE'),
       format: (v) => <StatusBadge status={v ? 'UP' : 'DOWN'}>{v ? 'ACTIVE' : 'INACTIVE'}</StatusBadge>,
     },
     {
@@ -55,12 +61,29 @@ export default function BooksPage() {
     },
   ]
 
+  const table = useTableView('books.table', columns, books ?? [])
+  const hasFilters = Object.values(table.filters).some(Boolean)
+  const otherNames = (books ?? []).filter((b) => b.book_id !== editedId).map((b) => b.name)
+
   return (
     <>
       <section className="section">
-        {error && <p className="error">Cannot load books: {error.message}</p>}
+        <QueryNotice what="books" service="Books Service" error={error} updatedAt={updatedAt} onRetry={reload} />
         {actionError && <p className="error">{actionError}</p>}
-        <DataTable columns={columns} rows={books ?? []} rowKey="book_id" />
+        <TableFilters columns={columns} filters={table.filters} onChange={table.setFilters} />
+        <DataTable
+          columns={columns}
+          rows={table.rows}
+          rowKey="book_id"
+          sort={table.sort}
+          onSort={table.toggleSort}
+          loading={loading}
+          emptyMessage={
+            error && !books ? 'Books unavailable'
+              : books?.length && hasFilters ? <NoMatches onClear={() => table.setFilters({})} />
+                : 'No books yet. Create the first one with the form below.'
+          }
+        />
       </section>
 
       <div className="panels">
@@ -73,6 +96,7 @@ export default function BooksPage() {
           <BookForm
             key={editedId ?? 'new'}
             book={edited}
+            existingNames={otherNames}
             onSaved={() => {
               setEditedId(null)
               reload()

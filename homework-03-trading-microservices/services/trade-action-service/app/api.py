@@ -1,13 +1,15 @@
 from bottle import Bottle, request, response
 
 class TradeActionApi(Bottle):
-    def __init__(self, trade_action_queue):
+    def __init__(self, trade_action_queue, stats):
         super().__init__()
         self.trade_action_queue = trade_action_queue
+        self.stats = stats
         self.route('/health', method='GET', callback=self.health)
         self.route('/trade-actions', method='POST', callback=self.trade_actions)
         self.route('/trade-actions/batch', method='POST', callback=self.trade_actions_batch)
         self.route('/queue/status', method='GET', callback=self.queue_status)
+        self.route('/stats', method='GET', callback=self.get_stats)
 
     def health(self):
         """Health check requested"""
@@ -57,3 +59,7 @@ class TradeActionApi(Bottle):
             status["message"] = "Queue is empty"
 
         return status
+
+    def get_stats(self):
+        """Worker processing metrics since service start"""
+        return self.stats.snapshot(self.trade_action_queue.get_size())

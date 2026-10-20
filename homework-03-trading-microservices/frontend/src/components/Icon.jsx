@@ -21,6 +21,48 @@ const ICONS = {
       <path d="M14 10l2 2-2 2" />
     </>
   ),
+  overview: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </>
+  ),
+  marketData: (
+    <>
+      <path d="M3 3v18h18" />
+      <path d="M7 15l4-4 3 3 6-7" />
+    </>
+  ),
+  pricing: (
+    <>
+      <path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" />
+      <circle cx="7.5" cy="7.5" r="1.5" />
+    </>
+  ),
+  books: (
+    <>
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z" />
+      <path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" />
+    </>
+  ),
+  tradeGeneration: <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" />,
+  tradeAction: (
+    <>
+      <path d="M17 3l4 4-4 4" />
+      <path d="M3 7h18" />
+      <path d="M7 21l-4-4 4-4" />
+      <path d="M21 17H3" />
+    </>
+  ),
+  blotter: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18M3 14h18M9 9v11" />
+    </>
+  ),
+  monitoring: <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
 }
 
 export default function Icon({ name, size = 18 }) {

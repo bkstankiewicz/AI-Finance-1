@@ -1,3 +1,7 @@
+x-service-logs: &service-logs
+  # Each service writes <service>/<service>.log (+ checkpoint) here; survives container restarts
+  - ./logs:/var/log/trading
+
 services:
 
   db:
@@ -30,8 +34,10 @@ services:
     build:
       context: .
       dockerfile: services/market-data-service/Dockerfile
+    restart: unless-stopped
     ports:
       - "8001:8001"
+    volumes: *service-logs
     environment:
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
@@ -42,8 +48,10 @@ services:
     build:
       context: .
       dockerfile: services/pricing-service/Dockerfile
+    restart: unless-stopped
     ports:
       - "8002:8002"
+    volumes: *service-logs
     environment:
       - STREAM_URL=http://market-data-service:8001/stream
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
@@ -57,8 +65,10 @@ services:
     build:
       context: .
       dockerfile: services/books-service/Dockerfile
+    restart: unless-stopped
     ports:
       - "8004:8004"
+    volumes: *service-logs
     environment:
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
@@ -69,8 +79,10 @@ services:
     build:
       context: .
       dockerfile: services/blotter-service/Dockerfile
+    restart: unless-stopped
     ports:
       - "8006:8006"
+    volumes: *service-logs
     environment:
       - STREAM_URL=http://pricing-service:8002/valuation-stream
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
@@ -84,8 +96,10 @@ services:
     build:
       context: .
       dockerfile: services/trade-action-service/Dockerfile
+    restart: unless-stopped
     ports:
       - "8008:8008"
+    volumes: *service-logs
     environment:
       - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
     depends_on:
@@ -96,8 +110,10 @@ services:
     build:
       context: .
       dockerfile: services/trade-generation-service/Dockerfile
+    restart: unless-stopped
     ports:
       - "8007:8007"
+    volumes: *service-logs
     environment:
       - STREAM_URL=http://market-data-service:8001/stream
       - GET_BOOKS_URL=http://books-service:8004/books
@@ -114,9 +130,12 @@ services:
     build:
       context: .
       dockerfile: services/monitoring_service/Dockerfile
+    restart: unless-stopped
     ports:
       - "8003:8003"
+    volumes: *service-logs
     environment:
+      - DATABASE_URL=postgresql+psycopg://trading:trading@db:5432/trading
       - MARKET_DATA_HEALTH_URL=http://market-data-service:8001/health
       - PRICING_HEALTH_URL=http://pricing-service:8002/health
       - BOOKS_HEALTH_URL=http://books-service:8004/health

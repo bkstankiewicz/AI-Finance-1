@@ -12,4 +12,6 @@ WORKDIR /home/app/services/trade-generation-service/app
 
 EXPOSE 8007
 
+ENV LOG_DIR=/var/log/trading
+
 CMD ["python", "main.py"]

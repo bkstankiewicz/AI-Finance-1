@@ -2,19 +2,18 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+
 from shared.trading_shared.db import SessionFactory
 from shared.trading_shared.models import AuditLogs
 
 
 class AuditLogsRepository:
-    def __init__(self):
-        pass
-
-    def push_audit_logs(self, log_data, session=None):
-        if session is not None:
-            session.add(AuditLogs(**log_data))
+    def push_audit_logs_idempotent(self, rows):
+        """Bulk insert in one transaction; rows whose audit_id already exists are skipped, so replays are safe"""
+        if not rows:
             return
-
-        with SessionFactory() as own_session:
-            own_session.add(AuditLogs(**log_data))
-            own_session.commit()
+        statement = pg_insert(AuditLogs).values(rows).on_conflict_do_nothing(index_elements=["audit_id"])
+        with SessionFactory() as session:
+            session.execute(statement)
+            session.commit()

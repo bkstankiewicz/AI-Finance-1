@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import useSseStream from '../../hooks/useSseStream.js'
-import { openValuationStream } from '../../api/pricing.js'
+import { openValuationStream, VALUATION_STALE_AFTER_MS } from '../../api/pricing.js'
 
 // trade_id -> latest valuation pushed by pricing-service: the live state of the blotter
 export default function useLiveValuations() {
   const [byTrade, setByTrade] = useState({})
 
-  const status = useSseStream(openValuationStream, {
+  const { status, lastEventAt } = useSseStream(openValuationStream, {
+    staleAfterMs: VALUATION_STALE_AFTER_MS,
     onEvents: (valuations) => {
       const receivedAt = new Date().toISOString()
       setByTrade((prev) => ({
@@ -16,5 +17,5 @@ export default function useLiveValuations() {
     },
   })
 
-  return { byTrade, status }
+  return { byTrade, status, lastEventAt }
 }

@@ -26,5 +26,6 @@
 
   &--up { @include tone($color-up); }
   &--down { @include tone($color-down); }
+  &--warn { @include tone($color-warn); }
   &--unknown { @include tone($color-muted); }
 }

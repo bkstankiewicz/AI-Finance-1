@@ -1,13 +1,19 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import useSseStream from '../hooks/useSseStream.js'
 import { getHistory, getSnapshot, openStream } from '../api/marketData.js'
 
 const HISTORY_LENGTH = 500
+const STALE_AFTER_MS = 30_000 // ~3x TICK_INTERVAL of market-data-service
 
+// Two contexts: data changes per tick batch, stream status rarely - consumers re-render only for what they read
 const MarketDataContext = createContext(null)
+const MarketStreamContext = createContext(null)
+
+// What a chart plots: spot price, or yield for bonds (no spot); undefined = nothing to plot (options)
+export const plotValue = (tick) => tick?.spot ?? tick?.yield
 
 // seq = backend event_id: unique and increasing, also across service restarts
-const toPoint = (tick) => ({ seq: tick.event_id, time: tick.timestamp.slice(11, 19), price: tick.spot })
+const toPoint = (tick) => ({ seq: tick.event_id, time: tick.timestamp.slice(11, 19), price: plotValue(tick) })
 
 // DB history and live ticks overlap (stream replays last ticks), so merge by seq
 const mergePoints = (series, points) => {
@@ -28,6 +34,7 @@ const mergeHistory = (history, pointsBySymbol) => {
 export function MarketDataProvider({ children }) {
   const [latest, setLatest] = useState({})   // symbol -> last tick
   const [history, setHistory] = useState({}) // symbol -> [{ seq, time, price }, ...]
+  const [received, setReceived] = useState({}) // symbol -> ticks received over the stream since app load
 
   useEffect(() => {
     getSnapshot()
@@ -43,7 +50,8 @@ export function MarketDataProvider({ children }) {
       })
       .catch((err) => console.error('history failed', err))
 
-  const status = useSseStream(openStream, {
+  const { status, lastEventAt } = useSseStream(openStream, {
+    staleAfterMs: STALE_AFTER_MS,
     // Also fires after an automatic reconnect (e.g. service restart) - refill what we missed
     onOpen: loadHistory,
     onEvents: (events) => {
@@ -52,18 +60,30 @@ export function MarketDataProvider({ children }) {
 
       const points = {}
       for (const tick of ticks) {
-        if (tick.spot !== undefined) (points[tick.symbol] ??= []).push(toPoint(tick))
+        if (plotValue(tick) !== undefined) (points[tick.symbol] ??= []).push(toPoint(tick))
       }
       setLatest((prev) => ({ ...prev, ...Object.fromEntries(ticks.map((t) => [t.symbol, t])) }))
       setHistory((prev) => mergeHistory(prev, points))
+      setReceived((prev) => {
+        const next = { ...prev }
+        for (const tick of ticks) next[tick.symbol] = (next[tick.symbol] ?? 0) + 1
+        return next
+      })
     },
   })
 
+  const data = useMemo(() => ({ latest, history, received }), [latest, history, received])
+  const stream = useMemo(() => ({ status, lastEventAt }), [status, lastEventAt])
+
   return (
-    <MarketDataContext.Provider value={{ latest, history, status }}>
-      {children}
-    </MarketDataContext.Provider>
+    <MarketStreamContext.Provider value={stream}>
+      <MarketDataContext.Provider value={data}>{children}</MarketDataContext.Provider>
+    </MarketStreamContext.Provider>
   )
 }
 
+// { latest, history, received }
 export const useMarketData = () => useContext(MarketDataContext)
+
+// { status, lastEventAt }
+export const useMarketStream = () => useContext(MarketStreamContext)

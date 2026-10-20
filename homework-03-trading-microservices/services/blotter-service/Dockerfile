@@ -12,4 +12,6 @@ WORKDIR /home/app/services/blotter-service/app
 
 EXPOSE 8006
 
+ENV LOG_DIR=/var/log/trading
+
 CMD ["python", "main.py"]

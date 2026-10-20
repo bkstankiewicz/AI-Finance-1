@@ -1,21 +1,31 @@
 import json
 import random
 import urllib.request
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 import structlog
-from config import GET_ACTIVE_TRADES_URL, SERVICE_NAME
+from config import GET_ACTIVE_TRADES_URL
 
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
+def _active_trades_url(limit):
+    if limit is None:
+        return GET_ACTIVE_TRADES_URL
+    parts = urlsplit(GET_ACTIVE_TRADES_URL)
+    query = dict(parse_qsl(parts.query))
+    query["limit"] = str(limit)
+    return urlunsplit(parts._replace(query=urlencode(query)))
 
 
 class TradeGeneratorBlotterClient:
     def __init__(self):
         self.trade_cache = []
-        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
+        self.log = structlog.get_logger()
 
-    def get_active_trades(self):
-        """Fetch the list of last 20 active trades from the blotter-service"""
+    def get_active_trades(self, limit=None):
+        """Fetch the latest active trades from the blotter-service (limit from GET_ACTIVE_TRADES_URL unless overridden)"""
         try:
-            request = urllib.request.Request(GET_ACTIVE_TRADES_URL)
+            request = urllib.request.Request(_active_trades_url(limit))
             with opener.open(request, timeout=5) as response:
                 body = response.read()
                 data = json.loads(body.decode())

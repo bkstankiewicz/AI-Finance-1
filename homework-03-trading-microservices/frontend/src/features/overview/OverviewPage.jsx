@@ -13,7 +13,7 @@ const MODES = {
 
 export default function OverviewPage() {
   const [mode, setMode] = usePersistentState('overview.mode', 'Business')
-  const services = useServiceStatus()
+  const { services } = useServiceStatus()
   const ModeView = MODES[mode] ?? BusinessOverview
 
   return (

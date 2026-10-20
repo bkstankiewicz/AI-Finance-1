@@ -1,4 +1,5 @@
 from bottle import Bottle, request, response
+from repository import BookNotFoundError, BookInUseError
 
 
 class BooksServiceApi(Bottle):
@@ -68,8 +69,11 @@ class BooksServiceApi(Bottle):
         try:
             book = self.books_service.update_book(book_id, data)
             return self.book_to_dict(book)
-        except ValueError as e:
+        except BookNotFoundError as e:
             response.status = 404
+            return {"error": str(e)}
+        except ValueError as e:
+            response.status = 400
             return {"error": str(e)}
 
     def delete_book(self, book_id):
@@ -77,6 +81,9 @@ class BooksServiceApi(Bottle):
         try:
             self.books_service.delete_book(book_id)
             response.status = 204
+        except BookInUseError as e:
+            response.status = 409
+            return {"error": str(e)}
         except ValueError as e:
             response.status = 404
             return {"error": str(e)}

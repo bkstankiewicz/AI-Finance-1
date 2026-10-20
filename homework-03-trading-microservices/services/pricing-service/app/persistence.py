@@ -27,21 +27,25 @@ class Persistence:
 
         with SessionFactory() as session:
             for data in valuations:
-                session.add(Valuations(
-                    trade_id=data["trade_id"],
-                    book_id=data["book_id"],
-                    asset_class=data["asset_class"],
-                    valuation_time=datetime.now(timezone.utc),
-                    fair_value=data["fair_value"],
-                    market_value=data.get("market_value"),
-                    unrealized_pnl=data.get("unrealized_pnl", 0),
-                    realized_pnl=data.get("realized_pnl", 0),
-                    total_pnl=data.get("total_pnl", 0),
-                    currency=data.get("currency", "USD"),
-                    market_data_reference=data.get("market_data_reference"),
-                    valuation_payload=data
-                ))
+                session.add(self._to_valuation(data))
             session.commit()
+
+    @staticmethod
+    def _to_valuation(data):
+        return Valuations(
+            trade_id=data["trade_id"],
+            book_id=data["book_id"],
+            asset_class=data["asset_class"],
+            valuation_time=datetime.now(timezone.utc),
+            fair_value=data["fair_value"],
+            market_value=data.get("market_value"),
+            unrealized_pnl=data.get("unrealized_pnl", 0),
+            realized_pnl=data.get("realized_pnl", 0),
+            total_pnl=data.get("total_pnl", 0),
+            currency=data.get("currency", "USD"),
+            market_data_reference=data.get("market_data_reference"),
+            valuation_payload=data
+        )
 
     def get_all_active_trades(self, asset_class):
         """Get all active trades for a specific asset class"""
@@ -85,10 +89,11 @@ class Persistence:
                 })
         return results
 
-    def mark_trade_settled(self, trade_id):
-        """Mark a closed trade as settled once its final realized PnL has been calculated"""
+    def settle_trade(self, data):
+        """Store the final realized-PnL valuation and mark the trade settled in one transaction (bypasses the buffer)"""
         with SessionFactory() as session:
-            session.query(Trades).filter(Trades.trade_id == trade_id).update({"is_settled": True})
+            session.add(self._to_valuation(data))
+            session.query(Trades).filter(Trades.trade_id == data["trade_id"]).update({"is_settled": True})
             session.commit()
 
     def get_all_valuations(self, limit=20):

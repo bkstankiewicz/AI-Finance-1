@@ -9,3 +9,6 @@ export const getTradeValuations = (tradeId, limit = 20) =>
 export const getLatestValuation = () => getJson(`${BASE}/valuations?limit=1`).then((res) => res.valuations[0] ?? null)
 
 export const openValuationStream = () => new EventSource(`${BASE}/valuation-stream`)
+
+// ~3x VALUATION_INTERVAL of pricing-service; only meaningful while there are active trades to value
+export const VALUATION_STALE_AFTER_MS = 15_000

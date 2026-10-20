@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 data/
 *.jsonl
+logs/
+
+# Local AI context helpers (not pushed)
+Input_AI.md
+.github/copilot-instructions.md
+.github/instructions/

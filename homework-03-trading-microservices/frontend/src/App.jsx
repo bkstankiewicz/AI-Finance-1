@@ -3,11 +3,13 @@ import Sidebar from './components/Sidebar.jsx'
 import OverviewPage from './features/overview/OverviewPage.jsx'
 import MarketDataPage from './features/market-data/MarketDataPage.jsx'
 import { MarketDataProvider } from './context/MarketDataContext.jsx'
+import { ChartSessionsProvider } from './features/market-data/ChartSessions.jsx'
 import PricingPage from './features/pricing/PricingPage.jsx'
 import BooksPage from './features/books/BooksPage.jsx'
 import TradeGenerationPage from './features/trade-generation/TradeGenerationPage.jsx'
 import TradeActionPage from './features/trade-action/TradeActionPage.jsx'
 import BlotterPage from './features/blotter/BlotterPage.jsx'
+import { BlotterSessionsProvider } from './features/blotter/BlotterSessions.jsx'
 import MonitoringPage from './features/monitoring/MonitoringPage.jsx'
 
 // page name -> component; null = not implemented yet
@@ -45,13 +47,17 @@ export default function App() {
 
   return (
     <MarketDataProvider>
-      <div className="app">
-        <Sidebar pages={Object.keys(PAGES)} active={activePage} onSelect={navigate} />
+      <ChartSessionsProvider>
+        <BlotterSessionsProvider>
+          <div className="app">
+            <Sidebar pages={Object.keys(PAGES)} active={activePage} onSelect={navigate} />
 
-        <main className="app__content">
-          {Page ? <Page /> : <p className="placeholder">{activePage} – coming soon</p>}
-        </main>
-      </div>
+            <main className="app__content">
+              {Page ? <Page /> : <p className="placeholder">{activePage} – coming soon</p>}
+            </main>
+          </div>
+        </BlotterSessionsProvider>
+      </ChartSessionsProvider>
     </MarketDataProvider>
   )
 }

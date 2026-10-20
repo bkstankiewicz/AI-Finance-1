@@ -1,5 +1,18 @@
 @use '../../styles/variables' as *;
 
+.blotter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $gap;
+
+  &--filters {
+    align-items: flex-end;
+    margin-bottom: $gap;
+  }
+}
+
+.blotter-filters,
 .trade-filters {
   display: flex;
   flex-wrap: wrap;

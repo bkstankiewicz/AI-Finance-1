@@ -1,25 +1,24 @@
-from shared.trading_shared.repositories import AuditLogsRepository
-from shared.trading_shared.audit import build_audit_log, AuditEventType, AuditSeverity
+import structlog
+
+from shared.trading_shared.audit import log_audit_error, AuditEventType
 from config import SERVICE_NAME
 
 
 class TradeActionValidation:
     def __init__(self):
-        self.audit_repo = AuditLogsRepository()
+        self.log = structlog.get_logger()
 
-    def reject_trade(self, log_data, message):
-        """Audit-log a validation failure and raise to stop processing"""
-        entity_id = log_data.get("trade_id") or log_data.get("client_request_id", "N/A")
-        log_data = build_audit_log(
-            event_type=AuditEventType.TRADE_REJECTED,
-            severity=AuditSeverity.ERROR,
-            service_name=SERVICE_NAME,
-            entity_id=str(entity_id),
+    def reject_trade(self, action, message):
+        """Audit-log a validation failure (TRADE_REJECTED) and raise to stop processing"""
+        entity_id = action.get("trade_id") or action.get("client_request_id", "N/A")
+        log_audit_error(
+            self.log,
+            AuditEventType.TRADE_REJECTED,
+            message,
             entity_type="TradeAction",
-            message=message,
-            payload=log_data
+            entity_id=entity_id,
+            action=action,
         )
-        self.audit_repo.push_audit_logs(log_data)
         raise ValueError(message)
 
     def validate_open_trade(self, action):

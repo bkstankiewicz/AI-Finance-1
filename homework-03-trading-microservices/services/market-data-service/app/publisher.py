@@ -2,11 +2,11 @@ import json
 import threading
 import queue
 import structlog
-from config import SERVICE_NAME
+
 
 class Publisher:
     def __init__(self):
-        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
+        self.log = structlog.get_logger()
         self.subscribers = []
         self.lock = threading.Lock()
 
@@ -14,12 +14,16 @@ class Publisher:
         """Subscribe a client queue to the publisher"""
         with self.lock:
             self.subscribers.append(client_queue)
+            active = len(self.subscribers)
+        self.log.info("client_subscribed", active_clients=active)
 
     def unsubscribe(self, client_queue):
         """Unsubscribe a client queue from the publisher"""
         with self.lock:
             if client_queue in self.subscribers:
                 self.subscribers.remove(client_queue)
+            active = len(self.subscribers)
+        self.log.info("client_disconnected", active_clients=active)
 
     def publish_data(self, data):
         """Publish data to all subscribers"""
@@ -30,10 +34,8 @@ class Publisher:
 
     def stream_events(self, initial_events=()):
         """SSE event generator - subscribe, yield events, unsubscribe on disconnect"""
-        client_queue = queue.Queue()
+        client_queue = queue.SimpleQueue()
         self.subscribe(client_queue)
-        self.log.info("client_subscribed", active_clients=len(self.subscribers))
-        print(f"Client subscribed. Active clients: {len(self.subscribers)}")
 
         try:
             for event in initial_events:
@@ -46,4 +48,3 @@ class Publisher:
                     yield b": heartbeat\n\n"
         finally:
             self.unsubscribe(client_queue)
-            self.log.info("client_disconnected", active_clients=len(self.subscribers))

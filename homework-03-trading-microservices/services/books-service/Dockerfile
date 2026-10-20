@@ -12,4 +12,6 @@ WORKDIR /home/app/services/books-service/app
 
 EXPOSE 8004
 
+ENV LOG_DIR=/var/log/trading
+
 CMD ["python", "main.py"]

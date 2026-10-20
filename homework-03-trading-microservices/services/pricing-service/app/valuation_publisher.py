@@ -6,7 +6,7 @@ from config import SERVICE_NAME
 
 class ValuationPublisher:
     def __init__(self):
-        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
+        self.log = structlog.get_logger()
         self.subscribers = []
         self.latest_by_symbol = {}
         self.lock = threading.Lock()

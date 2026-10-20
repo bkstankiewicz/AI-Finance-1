@@ -12,6 +12,8 @@ body {
   background: $color-bg;
   color: $color-text;
   font-family: $font-family;
+  // Equal-width digits keep prices aligned in columns without a monospace font
+  font-variant-numeric: tabular-nums;
 }
 
 h1,
@@ -165,7 +167,6 @@ h2 {
     border: none;
     background: none;
     color: $color-accent;
-    font-family: $font-mono;
     text-decoration: underline;
   }
 }
@@ -187,6 +188,11 @@ h2 {
   &:disabled {
     opacity: 0.5;
   }
+
+  &--invalid,
+  &--invalid:focus {
+    border-color: $color-down;
+  }
 }
 
 .form {
@@ -204,6 +210,12 @@ h2 {
 
   input[type='checkbox'] {
     justify-self: start;
+  }
+
+  // Aligned with the input column of the label grid above
+  &__field-error {
+    margin-top: -6px;
+    padding-left: calc(160px + #{$gap});
   }
 
   &__actions {

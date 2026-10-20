@@ -1,0 +1,27 @@
+@use '../../styles/variables' as *;
+
+.section-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $gap;
+}
+
+// Solid fill per outcome so the result is readable at a glance; beats the row hover background
+.data-table td.outcome-cell {
+  font-weight: 600;
+  color: $color-bg;
+
+  &.outcome-cell--opened { background: $color-up; }
+  &.outcome-cell--closed { background: $color-info; }
+  &.outcome-cell--duplicate { background: $color-muted; }
+  &.outcome-cell--not_active { background: $color-warn; }
+  &.outcome-cell--unknown_type { background: $color-alert; }
+  &.outcome-cell--error { background: $color-down; }
+
+  // Business rejection: red, but lighter than a technical ERROR
+  &.outcome-cell--rejected {
+    background: color-mix(in srgb, #{$color-down} 25%, transparent);
+    color: $color-down;
+  }
+}

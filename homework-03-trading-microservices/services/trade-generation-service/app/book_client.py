@@ -9,7 +9,7 @@ opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 class TradeGeneratorBookClient:
     def __init__(self):
         self.books_cache = []
-        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
+        self.log = structlog.get_logger()
 
     def get_books(self):
         """Fetch the list of books from the books-service"""

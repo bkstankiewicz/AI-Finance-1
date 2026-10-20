@@ -1,7 +1,7 @@
 import StatusBadge from './StatusBadge.jsx'
 import './ServiceStatusCards.scss'
 
-// services: rows from useServiceStatus()
+// services: `services` from useServiceStatus()
 export default function ServiceStatusCards({ services }) {
   return (
     <section className="service-cards">

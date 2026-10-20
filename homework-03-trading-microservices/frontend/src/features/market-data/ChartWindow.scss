@@ -1,0 +1,56 @@
+@use '../../styles/variables' as *;
+
+.chart-window {
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+  min-height: 100vh;
+  padding: $gap * 1.5;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: $gap;
+
+    h1 {
+      font-size: 1.1rem;
+    }
+  }
+
+  &__add {
+    margin-left: auto;
+  }
+
+  // One chart per instrument: prices of different assets don't share a Y scale
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+    gap: $gap;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: $gap;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius;
+  }
+
+  &__item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__price {
+    margin-left: auto;
+    font-weight: 500;
+  }
+
+  &__remove {
+    padding: 2px 10px;
+  }
+}

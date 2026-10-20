@@ -4,8 +4,8 @@ import StatusBadge from './StatusBadge.jsx'
 const BADGES = {
   CONNECTING: { tone: undefined, label: 'CONNECTING' },
   CONNECTED: { tone: 'UP', label: 'LIVE' },
+  STALE: { tone: 'WARN', label: 'STALE' },
   RECONNECTING: { tone: 'DOWN', label: 'RECONNECTING' },
-  CLOSED: { tone: 'DOWN', label: 'CLOSED' },
 }
 
 export default function StreamStatusBadge({ status }) {

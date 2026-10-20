@@ -3,21 +3,28 @@ from datetime import datetime, timezone
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
+import structlog
 from sqlalchemy.exc import IntegrityError
 
 from shared.trading_shared.db import SessionFactory
 from shared.trading_shared.models import Books
-from shared.trading_shared.repositories import AuditLogsRepository
-from shared.trading_shared.audit import build_audit_log, AuditEventType, AuditSeverity
 from config import SERVICE_NAME
 
 
 UPDATABLE_FIELDS = {"name", "description", "expected_asset_class", "is_active", "updated_by"}
 
 
+class BookNotFoundError(ValueError):
+    pass
+
+
+class BookInUseError(ValueError):
+    pass
+
+
 class BooksRepository:
     def __init__(self):
-        self.audit_repo = AuditLogsRepository()
+        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
 
     def get_all_books(self):
         """Get all books"""
@@ -43,24 +50,13 @@ class BooksRepository:
                 updated_by=book_data.get("updated_by")
             )
             session.add(record)
-
-            log_data = build_audit_log(
-                event_type=AuditEventType.BOOK_CREATED,
-                severity=AuditSeverity.INFO,
-                service_name=SERVICE_NAME,
-                entity_id=str(record.book_id),
-                entity_type="Book",
-                message=f"Book '{record.name}' created with ID {record.book_id}",
-                payload=book_data
-            )
-            
-            self.audit_repo.push_audit_logs(log_data, session)
             try:
                 session.commit()
             except IntegrityError:
                 session.rollback()
                 raise ValueError(f"Book with name '{book_data['name']}' already exists")
             session.refresh(record)
+            self.log.info("book_created", entity_type="Book", entity_id=str(record.book_id), name=record.name)
             return record
 
     def update_book(self, book_id, book_data):
@@ -77,24 +73,14 @@ class BooksRepository:
                     setattr(record, key, value)
             record.updated_at = datetime.now(timezone.utc)
 
-            event_type = AuditEventType.BOOK_DEACTIVATED if is_deactivation else AuditEventType.BOOK_UPDATED
-            message = f"Book '{record.name}' deactivated" if is_deactivation else f"Book '{record.name}' updated with ID {record.book_id}"
-            log_data = build_audit_log(
-                event_type=event_type,
-                severity=AuditSeverity.INFO,
-                service_name=SERVICE_NAME,
-                entity_id=str(record.book_id),
-                entity_type="Book",
-                message=message,
-                payload=book_data
-            )
-            self.audit_repo.push_audit_logs(log_data, session)
             try:
                 session.commit()
             except IntegrityError:
                 session.rollback()
                 raise ValueError(f"Book with name '{book_data.get('name')}' already exists")
             session.refresh(record)
+            self.log.info("book_deactivated" if is_deactivation else "book_updated",
+                          entity_type="Book", entity_id=str(record.book_id), changes=book_data)
             return record
 
     def delete_book(self, book_id):
@@ -103,17 +89,13 @@ class BooksRepository:
             record = session.get(Books, book_id)
             if not record:
                 return False
+            name = record.name
             session.delete(record)
-
-            log_data = build_audit_log(
-                event_type=AuditEventType.BOOK_DELETED,
-                severity=AuditSeverity.WARNING,
-                service_name=SERVICE_NAME,
-                entity_id=str(record.book_id),
-                entity_type="Book",
-                message=f"Book '{record.name}' deleted with ID {record.book_id}",
-                payload=None
-            )
-            self.audit_repo.push_audit_logs(log_data, session)
-            session.commit()
+            try:
+                session.commit()
+            except IntegrityError:
+                session.rollback()
+                raise BookInUseError(
+                    f"Book '{name}' is referenced by trades or valuations; deactivate it with is_active=false")
+            self.log.warning("book_deleted", entity_type="Book", entity_id=str(book_id), name=name)
             return True

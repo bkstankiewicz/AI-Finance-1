@@ -12,3 +12,4 @@ TRADE_ACTION_URL = os.environ.get('TRADE_ACTION_URL', 'http://localhost:8008/tra
 
 RECONNECTING_INTERVAL = int(os.environ.get('RECONNECTING_INTERVAL', 1))
 GENERATION_INTERVAL = float(os.environ.get('GENERATION_INTERVAL', 10.0))
+TRADE_OUT_PROBABILITY = float(os.environ.get('TRADE_OUT_PROBABILITY', 30.0))

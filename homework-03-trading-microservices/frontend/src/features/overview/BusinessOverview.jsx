@@ -1,5 +1,6 @@
 import KpiCard from '../../components/KpiCard.jsx'
 import Panel from '../../components/Panel.jsx'
+import QueryNotice from '../../components/QueryNotice.jsx'
 import usePolling from '../../hooks/usePolling.js'
 import { getBooksSummary } from '../../api/blotter.js'
 import { formatNumber } from '../../utils/format.js'
@@ -11,7 +12,7 @@ const pnlTone = (value) => (value < 0 ? 'down' : undefined)
 
 // PnL and transaction totals, aggregated from the blotter's per-book summary
 export default function BusinessOverview() {
-  const { data: books, error } = usePolling(getBooksSummary, POLL_INTERVAL_MS)
+  const { data: books, error, updatedAt } = usePolling(getBooksSummary, POLL_INTERVAL_MS)
 
   const unrealized = sum(books, 'unrealized_pnl')
   const realized = sum(books, 'realized_pnl')
@@ -19,7 +20,7 @@ export default function BusinessOverview() {
 
   return (
     <>
-      {error && <p className="error">Cannot load book summary: {error.message}</p>}
+      <QueryNotice what="book summary" service="Blotter Service" error={error} updatedAt={updatedAt} />
 
       <div className="panels">
         <Panel title="P&L (USD)">

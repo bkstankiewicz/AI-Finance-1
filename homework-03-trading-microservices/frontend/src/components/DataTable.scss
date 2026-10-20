@@ -1,12 +1,21 @@
 @use '../styles/variables' as *;
 
-// Wrapper carries border + rounded corners; <table> inside scrolls horizontally when too wide
+// Wrapper carries border + rounded corners; only __scroll scrolls horizontally, so the footer stays in place
 .data-table {
   width: 100%;
-  overflow-x: auto;
+  overflow: hidden;
   border: 1px solid $color-border;
   border-radius: $radius;
   background: $color-surface;
+
+  &__scroll {
+    overflow-x: auto;
+  }
+
+  &__footer {
+    border-top: 1px solid $color-border;
+    background: $color-surface-2;
+  }
 
   table {
     width: 100%;
@@ -30,18 +39,70 @@
     text-transform: uppercase;
   }
 
+  &__sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+
+    &:hover {
+      color: $color-text;
+    }
+  }
+
+  th[draggable='true'] {
+    cursor: grab;
+  }
+
+  // Pinned (locked) columns - see useColumnLayout
+  th.is-pinned {
+    color: $color-accent;
+  }
+
+  &__sort-icon {
+    opacity: 0.35;
+    font-size: 0.7rem;
+
+    &.is-active {
+      opacity: 1;
+      color: $color-accent;
+    }
+  }
+
   td {
     border-top: 1px solid $color-border;
-    font-family: $font-mono;
 
     &.data-table__empty {
       color: $color-muted;
       text-align: center;
     }
+
+    // Last known value that is no longer updating
+    &.is-stale {
+      color: $color-warn;
+      opacity: 0.7;
+    }
+
+    // Price moved up / down since the previous tick
+    &.is-up {
+      background: color-mix(in srgb, #{$color-up} 15%, transparent);
+      color: $color-up;
+    }
+
+    &.is-down {
+      background: color-mix(in srgb, #{$color-down} 15%, transparent);
+      color: $color-down;
+    }
   }
 
   td:first-child {
-    font-family: $font-family;
     font-weight: 500;
   }
 

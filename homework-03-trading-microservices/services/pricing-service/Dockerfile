@@ -12,4 +12,6 @@ WORKDIR /home/app/services/pricing-service/app
 
 EXPOSE 8002
 
+ENV LOG_DIR=/var/log/trading
+
 CMD ["python", "main.py"]

@@ -34,8 +34,9 @@ class BlotterServiceApi(Bottle):
         asset_class = request.query.get('asset_class') # type: ignore[attr-defined]
         status = request.query.get('status') # type: ignore[attr-defined]
         symbol = request.query.get('symbol') # type: ignore[attr-defined]
+        trade_ids = request.query.getall('trade_id') # type: ignore[attr-defined]
 
-        return {"trades": self.blotter_repository.get_trades(limit, book_id, asset_class, status, symbol)}
+        return {"trades": self.blotter_repository.get_trades(limit, book_id, asset_class, status, symbol, trade_ids)}
 
     def get_trades_by_id(self, trade_id):
         """Get trade details by trade_id"""

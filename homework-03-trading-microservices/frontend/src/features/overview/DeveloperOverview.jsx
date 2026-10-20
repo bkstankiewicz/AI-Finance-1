@@ -1,6 +1,7 @@
 import DataTable from '../../components/DataTable.jsx'
 import KpiCard from '../../components/KpiCard.jsx'
 import Panel from '../../components/Panel.jsx'
+import QueryNotice from '../../components/QueryNotice.jsx'
 import usePolling from '../../hooks/usePolling.js'
 import { useMarketData } from '../../context/MarketDataContext.jsx'
 import { getRecentErrors } from '../../api/blotter.js'
@@ -36,7 +37,7 @@ function TimestampCard({ label, timestamp }) {
 // Errors from audit logs and data freshness - "is the pipeline alive?"
 export default function DeveloperOverview() {
   const { latest } = useMarketData()
-  const { data: errors, error: errorsError } = usePolling(fetchRecentErrors, POLL_INTERVAL_MS)
+  const { data: errors, error: errorsError, updatedAt: errorsUpdatedAt } = usePolling(fetchRecentErrors, POLL_INTERVAL_MS)
   const { data: valuation } = usePolling(getLatestValuation, POLL_INTERVAL_MS)
 
   const lastTick = Object.values(latest)
@@ -47,7 +48,7 @@ export default function DeveloperOverview() {
   return (
     <div className="panels">
       <Panel title={`Errors (last ${ERROR_WINDOW_MINUTES} min)`}>
-        {errorsError && <p className="error">Cannot load errors: {errorsError.message}</p>}
+        <QueryNotice what="errors" service="Blotter Service" error={errorsError} updatedAt={errorsUpdatedAt} />
         <div className="kpis">
           <KpiCard label="Error count" value={errors?.count} tone={errors?.count > 0 ? 'down' : undefined} />
         </div>

@@ -1,0 +1,148 @@
+@use 'sass:list';
+@use '../../styles/variables' as *;
+
+.trades-window {
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+  min-height: 100vh;
+  padding: $gap * 1.5;
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: $gap;
+
+    h1 {
+      margin-right: auto;
+      font-size: 1.1rem;
+    }
+  }
+
+  &__control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: $color-muted;
+    font-size: 0.8rem;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: $gap;
+
+    .table-filters {
+      flex: 1;
+    }
+  }
+
+  // Segmented Active / History / Watchlist / All switch
+  &__tabs {
+    display: inline-flex;
+    align-self: flex-start;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid $color-border;
+    border-radius: $radius;
+    background: $color-surface;
+
+    .btn:not(.btn--primary) {
+      border-color: transparent;
+      background: none;
+    }
+  }
+
+  &__count {
+    margin-left: 6px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: $color-warn;
+    color: $color-bg;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+// --tag = palette slot picked per asset class - see _themes.scss
+@for $i from 0 through 7 {
+  .tag-color--#{$i} {
+    --tag: var(--color-tag-#{$i});
+  }
+}
+
+// Symbol shades of its asset class hue, mixed toward text/background so they work in both themes
+$tag-shades: (
+  var(--tag),
+  color-mix(in srgb, var(--tag) 70%, var(--color-text)),
+  color-mix(in srgb, var(--tag) 50%, var(--color-text)),
+  color-mix(in srgb, var(--tag) 70%, var(--color-bg)),
+);
+
+@for $i from 1 through list.length($tag-shades) {
+  .tag-shade--#{$i - 1} {
+    --tag-shade: #{list.nth($tag-shades, $i)};
+  }
+}
+
+// Scoped to the window so the fills outrank DataTable's row hover background
+.trades-window .data-table td {
+  &.num-cell {
+    text-align: right;
+  }
+
+  // Solid fills for the fields a trader scans first (like a classic blotter)
+  &.tag-cell {
+    font-weight: 600;
+    color: $color-bg;
+    background: $color-muted;
+  }
+
+  &.side-cell--buy { background: $color-info; }
+  &.side-cell--sell { background: $color-down; }
+  &.status-cell--active { background: $color-up; }
+  &.status-cell--closed { background: $color-muted; }
+  &.settlement-cell--settled { background: $color-up; }
+  &.settlement-cell--pending { background: $color-warn; }
+
+  &.settlement-cell--open {
+    background: none;
+    color: $color-muted;
+    font-weight: 400;
+  }
+
+  // Asset class: light tint, so it groups rows without competing with side/status
+  &.tint-cell {
+    background: color-mix(in srgb, var(--tag) 18%, transparent);
+    color: var(--tag);
+    font-weight: 600;
+  }
+
+  // Bar in the asset class color, text in a per-symbol shade of it
+  &.symbol-cell {
+    box-shadow: inset 3px 0 0 var(--tag);
+    color: var(--tag-shade, var(--tag));
+    font-weight: 600;
+  }
+
+  &.watch-cell {
+    padding-block: 0;
+  }
+}
+
+.watch-btn {
+  padding: 2px 4px;
+  border: none;
+  background: none;
+  color: $color-muted;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover,
+  &.is-active {
+    color: $color-warn;
+  }
+}

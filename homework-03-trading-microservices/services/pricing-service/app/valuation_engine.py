@@ -21,11 +21,11 @@ class ValuationEngine():
             return None
         return self.market_data_client.get_price(symbol)
 
-    def mark_trade_settled(self, trade_id):
-        """Mark a closed trade as settled once its final realized PnL has been calculated"""
-        if not trade_id:
+    def settle_trade(self, valuation):
+        """Persist the final realized PnL of a closed trade and mark it settled"""
+        if not valuation:
             return None
-        return self.trades_valuations.mark_trade_settled(trade_id)
+        return self.trades_valuations.settle_trade(valuation)
 
     def get_valuation_by_trade_id(self, trade_id, limit=20):
         """Get valuations for a specific trade_id, limited by the specified number"""

@@ -3,7 +3,7 @@
         {
             "ssh": "Disabled",
             "previewLimit": 50,
-            "server": "localhost",
+            "server": "127.0.0.1",
             "port": 5432,
             "driver": "PostgreSQL",
             "name": "trading-local",
@@ -26,5 +26,9 @@
             "approve": true,
             "matchCommandLine": true
         }
+    },
+    "terminal.integrated.env.windows": {
+        "http_proxy": "http://proxy-dmz.intel.com:911",
+        "https_proxy": "http://proxy-dmz.intel.com:912"
     }
 }

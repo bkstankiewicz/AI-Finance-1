@@ -20,6 +20,14 @@ const proxy = Object.fromEntries(
       target: `http://127.0.0.1:${port}`,
       changeOrigin: true,
       rewrite: (path) => path.replace(`/api/${name}`, ''),
+      // Runs before Vite's own handler (which answers a bare 500), so the UI can tell "service down" from a crash
+      configure: (proxyServer) => {
+        proxyServer.on('error', (err, req, res) => {
+          if (!('writeHead' in res) || res.headersSent || res.writableEnded) return
+          res.writeHead(503, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ error: `${name} service unavailable` }))
+        })
+      },
     },
   ]),
 )

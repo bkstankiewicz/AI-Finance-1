@@ -1,0 +1,20 @@
+@use '../styles/variables' as *;
+
+.table-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: $gap;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: $color-muted;
+    font-size: 0.8rem;
+  }
+
+  .input {
+    min-width: 180px;
+  }
+}

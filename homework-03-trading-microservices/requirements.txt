@@ -1,0 +1,5 @@
+alembic==1.18.5
+bottle==0.13.4
+psycopg[binary]==3.3.4
+SQLAlchemy==2.0.51
+structlog==26.1.0

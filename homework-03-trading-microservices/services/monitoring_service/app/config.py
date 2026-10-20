@@ -6,6 +6,7 @@ HOST = os.environ.get('MONITORING_HOST', '0.0.0.0')
 PORT = int(os.environ.get('MONITORING_PORT', 8003))
 
 MONITORING_INTERVAL = int(os.environ.get('MONITORING_INTERVAL', 1))
+JOIN_TIMEOUT = int(os.environ.get('JOIN_TIMEOUT', 3))
 
 SERVICE_URLS = {
     "market-data-service": os.environ.get('MARKET_DATA_HEALTH_URL', 'http://localhost:8001/health'),

@@ -2,10 +2,12 @@ import { getJson } from './http.js'
 
 const BASE = '/api/blotter'
 
-// filters: { limit, book_id, asset_class, status, symbol }; empty values are skipped
+// filters: { limit, book_id, asset_class, status, symbol, trade_id: [ids] }; empty values are skipped
 export const getTrades = (filters = {}) => {
   const query = new URLSearchParams(
-    Object.entries(filters).filter(([, value]) => value !== undefined && value !== null && value !== ''),
+    Object.entries(filters)
+      .flatMap(([key, value]) => (Array.isArray(value) ? value.map((v) => [key, v]) : [[key, value]]))
+      .filter(([, value]) => value !== undefined && value !== null && value !== ''),
   )
   return getJson(`${BASE}/trades?${query}`).then((res) => res.trades)
 }

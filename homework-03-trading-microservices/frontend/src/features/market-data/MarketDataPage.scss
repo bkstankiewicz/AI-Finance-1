@@ -1,28 +1,25 @@
 @use '../../styles/variables' as *;
 
-.plot {
-  padding: $gap $gap * 1.5;
-  border-radius: $radius-lg;
+// Segmented asset class switch above the ticks table
+.asset-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  background: $color-surface;
 
-  &__header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: $gap;
-    margin-bottom: $gap;
-
-    h2 {
-      font-size: 1rem;
-    }
+  .btn:not(.btn--primary) {
+    border-color: transparent;
+    background: none;
   }
+}
 
-  &__symbols {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  &__symbol {
-    min-width: 96px;
-  }
+.ticks-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $gap;
 }

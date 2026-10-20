@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import usePersistentState from '../../hooks/usePersistentState.js'
 import './PriceChart.scss'
 
 const X_WINDOWS = [50, 100, 250, 500] // number of last ticks shown
@@ -16,8 +17,30 @@ function niceStep(range, count) {
   return nice * magnitude
 }
 
-export default function PriceChart({ points }) {
-  const [windowSize, setWindowSize] = useState(100)
+const EMPTY_GRID = [0, 25, 50, 75, 100]
+
+// Axes + dashed grid without data, so the chart area keeps its shape
+export function EmptyChartGrid({ message }) {
+  return (
+    <div className="price-chart__body">
+      <div className="price-chart__y-axis" />
+      <svg className="price-chart__plot price-chart__plot--empty" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {EMPTY_GRID.map((v) => (
+          <g key={v}>
+            <line x1="0" x2="100" y1={v} y2={v} vectorEffect="non-scaling-stroke" />
+            <line x1={v} x2={v} y1="0" y2="100" vectorEffect="non-scaling-stroke" />
+          </g>
+        ))}
+      </svg>
+      <div className="price-chart__empty">{message}</div>
+      <div className="price-chart__x-axis" />
+    </div>
+  )
+}
+
+// asPercent: values are fractions (e.g. bond yield 0.043) shown on the Y axis as 4.30%
+export default function PriceChart({ points, storageKey = 'priceChart', asPercent = false }) {
+  const [windowSize, setWindowSize] = usePersistentState(`${storageKey}.window`, 100)
   const [yZoom, setYZoom] = useState(1) // 1 = auto-fit, >1 zoom in, <1 zoom out
   const [endSeq, setEndSeq] = useState(null) // seq of the rightmost point; null = follow live data
   const [yCenter, setYCenter] = useState(null) // null = center on visible prices
@@ -59,7 +82,7 @@ export default function PriceChart({ points }) {
     return (
       <div className="price-chart">
         {controls}
-        <div className="price-chart__empty">Waiting for data...</div>
+        <EmptyChartGrid message="Waiting for data..." />
       </div>
     )
   }
@@ -104,6 +127,7 @@ export default function PriceChart({ points }) {
 
   const step = niceStep(yMax - yMin, Y_TICK_COUNT)
   const decimals = Math.max(0, -Math.floor(Math.log10(step)))
+  const yLabel = (v) => (asPercent ? `${(v * 100).toFixed(Math.max(0, decimals - 2))}%` : v.toFixed(decimals))
   const yTicks = []
   for (let v = Math.ceil(yMin / step) * step; v <= yMax; v += step) yTicks.push(v)
 
@@ -119,7 +143,7 @@ export default function PriceChart({ points }) {
       <div className="price-chart__body">
         <div className="price-chart__y-axis">
           {yTicks.map((v) => (
-            <span key={v} style={{ top: `${toY(v)}%` }}>{v.toFixed(decimals)}</span>
+            <span key={v} style={{ top: `${toY(v)}%` }}>{yLabel(v)}</span>
           ))}
         </div>
 

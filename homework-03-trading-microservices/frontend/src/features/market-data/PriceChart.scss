@@ -40,7 +40,6 @@ $x-axis-height: 24px;
   &__y-axis,
   &__x-axis {
     position: relative;
-    font-family: $font-mono;
     font-size: 0.7rem;
     color: $color-muted;
 
@@ -91,9 +90,20 @@ $x-axis-height: 24px;
   }
 
   &__empty {
+    grid-area: 1 / 2; // overlays the empty plot
     display: grid;
     place-items: center;
-    height: clamp(200px, 35vh, 420px);
     color: $color-muted;
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  &__plot--empty {
+    grid-area: 1 / 2;
+    cursor: default;
+
+    &:active {
+      cursor: default;
+    }
   }
 }

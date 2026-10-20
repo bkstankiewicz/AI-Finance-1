@@ -45,15 +45,21 @@ $sidebar-collapsed-width: 56px;
     }
   }
 
+  &__label {
+    transition: opacity 0.15s ease;
+  }
+
   &__theme {
     margin-top: auto;
     align-self: flex-start;
   }
 
   &__item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
-    padding: 9px 12px;
+    padding: 9px;
     border: none;
     border-radius: 8px;
     background: none;
@@ -63,6 +69,10 @@ $sidebar-collapsed-width: 56px;
     text-align: left;
     white-space: nowrap;
     cursor: pointer;
+
+    svg {
+      flex-shrink: 0;
+    }
 
     &:hover {
       background: $color-surface-2;
@@ -83,10 +93,9 @@ $sidebar-collapsed-width: 56px;
       align-self: center;
     }
 
-    // Only the toggle stays visible when folded
-    ul {
+    // Folded menu shows icons only
+    .sidebar__label {
       opacity: 0;
-      pointer-events: none;
     }
   }
 }

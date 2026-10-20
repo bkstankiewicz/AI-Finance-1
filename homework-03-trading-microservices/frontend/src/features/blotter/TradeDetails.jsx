@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import DataTable from '../../components/DataTable.jsx'
 import DetailsList from '../../components/DetailsList.jsx'
 import Panel from '../../components/Panel.jsx'
+import QueryNotice from '../../components/QueryNotice.jsx'
 import usePolling from '../../hooks/usePolling.js'
 import { getTradeAuditLogs, getTradeDetails } from '../../api/blotter.js'
 import { getTradeValuations } from '../../api/pricing.js'
@@ -47,14 +48,14 @@ const AUDIT_COLUMNS = [
 ]
 
 // Static trade data, valuation history and audit log come from the DB; the live valuation from SSE
-export default function TradeDetails({ tradeId, row, live, bookNames, onClose }) {
+export default function TradeDetails({ tradeId, row, live, isLive, bookNames, onClose }) {
   const fetchDetails = useCallback(
     () =>
       Promise.all([getTradeDetails(tradeId), getTradeValuations(tradeId, HISTORY_LIMIT), getTradeAuditLogs(tradeId)])
         .then(([details, valuations, auditLogs]) => ({ details, valuations, auditLogs })),
     [tradeId],
   )
-  const { data, error } = usePolling(fetchDetails, DETAILS_POLL_MS)
+  const { data, error, loading, updatedAt } = usePolling(fetchDetails, DETAILS_POLL_MS)
 
   // blotter returns { error } (HTTP 200) e.g. for trades without a cached valuation - fall back to the table row
   const trade = data?.details?.trade ?? row ?? { trade_id: tradeId }
@@ -67,7 +68,7 @@ export default function TradeDetails({ tradeId, row, live, bookNames, onClose })
         <h2>Trade details</h2>
         <button className="btn" onClick={onClose}>Close</button>
       </div>
-      {error && <p className="error">Cannot load trade details: {error.message}</p>}
+      <QueryNotice what="trade details" service="Blotter or Pricing Service" error={error} updatedAt={updatedAt} />
 
       <div className="panels">
         <Panel title="Trade">
@@ -75,18 +76,19 @@ export default function TradeDetails({ tradeId, row, live, bookNames, onClose })
         </Panel>
 
         <Panel title="Live valuation">
+          {!isLive && <p className="error">Live valuation stream unavailable – values below are not updating.</p>}
           {live
             ? <DetailsList fields={LIVE_FIELDS} data={live} />
-            : <p className="muted">Waiting for the next valuation from the stream…</p>}
+            : <p className="muted">{isLive ? 'Waiting for the next valuation from the stream…' : 'No valuation received yet.'}</p>}
         </Panel>
       </div>
 
       <Panel title="Valuation history">
-        <DataTable columns={HISTORY_COLUMNS} rows={data?.valuations ?? []} rowKey="valuation_id" />
+        <DataTable columns={HISTORY_COLUMNS} rows={data?.valuations ?? []} rowKey="valuation_id" loading={loading} emptyMessage="No valuations stored yet" />
       </Panel>
 
       <Panel title="Audit log">
-        <DataTable columns={AUDIT_COLUMNS} rows={auditRows} rowKey="key" />
+        <DataTable columns={AUDIT_COLUMNS} rows={auditRows} rowKey="key" loading={loading} emptyMessage="No audit entries" />
       </Panel>
     </>
   )

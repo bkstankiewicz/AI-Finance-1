@@ -4,7 +4,7 @@ from config import SERVICE_NAME
 
 class PnLService():
     def __init__(self, valuation_engine):
-        self.log = structlog.get_logger().bind(service=SERVICE_NAME)
+        self.log = structlog.get_logger()
         self.valuation_engine = valuation_engine
         self.multiplier = 1.0
 
@@ -65,7 +65,12 @@ class PnLService():
                 "currency": trade.get("trade_currency"),
             }
             self.log.info("calculated_closed_pnl", trade_id=trade.get("trade_id"), data=data)
-            self.valuation_engine.mark_trade_settled(trade.get("trade_id"))
+            try:
+                self.valuation_engine.settle_trade(data)
+            except Exception:
+                # Trade stays unsettled, so the next cycle retries it
+                self.log.exception("settle_trade_failed", trade_id=trade.get("trade_id"))
+                continue
             results.append(data)
         return results
 

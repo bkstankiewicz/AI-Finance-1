@@ -12,4 +12,6 @@ WORKDIR /home/app/services/trade-action-service/app
 
 EXPOSE 8008
 
+ENV LOG_DIR=/var/log/trading
+
 CMD ["python", "main.py"]

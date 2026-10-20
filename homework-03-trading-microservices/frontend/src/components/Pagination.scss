@@ -1,0 +1,55 @@
+@use '../styles/variables' as *;
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $gap;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+
+  &__summary {
+    color: $color-muted;
+  }
+
+  &__pages {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__btn {
+    min-width: 32px;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: $color-text;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: $color-surface;
+      color: $color-accent;
+    }
+
+    &:disabled {
+      color: $color-muted;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &.is-active {
+      background: $color-surface;
+      color: $color-accent;
+      font-weight: 600;
+    }
+  }
+
+  &__gap {
+    padding: 0 4px;
+    color: $color-muted;
+  }
+}

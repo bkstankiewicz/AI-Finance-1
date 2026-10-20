@@ -1,4 +1,5 @@
 import queue
+import time
 
 
 class TradeActionQueue:
@@ -6,11 +7,11 @@ class TradeActionQueue:
         self.queue = queue.Queue()
 
     def put(self, data):
-        """Put data into the queue"""
-        self.queue.put(data)
+        """Put data into the queue, stamped with the enqueue time"""
+        self.queue.put((time.perf_counter(), data))
 
     def get(self, timeout=1):
-        """Get data from the queue with a timeout"""
+        """Get (enqueued_at, data) from the queue with a timeout"""
         return self.queue.get(timeout=timeout)
 
     def get_size(self):
