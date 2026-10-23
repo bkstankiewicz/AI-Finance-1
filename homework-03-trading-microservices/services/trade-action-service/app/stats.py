@@ -1,6 +1,6 @@
 import threading
 import time
-from collections import Counter
+from collections import Counter, deque
 from datetime import datetime, timezone
 
 RECENT_LIMIT = 20
@@ -23,9 +23,9 @@ class ProcessingStats:
         self._max_processing_ms = 0.0
         self._total_wait_ms = 0.0
         self._last_db_write_at = None
-        self._finished_at = []
-        self._recent_actions = []
-        self._recent_rejections = []
+        self._finished_at = deque()
+        self._recent_actions = deque(maxlen=RECENT_LIMIT)
+        self._recent_rejections = deque(maxlen=RECENT_LIMIT)
 
     def record(self, action, outcome, wait_ms, processing_ms, message=None, symbol=None):
         now = time.perf_counter()
@@ -51,12 +51,13 @@ class ProcessingStats:
                 self._last_db_write_at = entry["finished_at"]
             self._finished_at.append(now)
             self._trim_window(now)
-            self._recent_actions = [entry] + self._recent_actions[:RECENT_LIMIT - 1]
+            self._recent_actions.appendleft(entry)
             if outcome in ("REJECTED", "ERROR"):
-                self._recent_rejections = [entry] + self._recent_rejections[:RECENT_LIMIT - 1]
+                self._recent_rejections.appendleft(entry)
 
     def _trim_window(self, now):
-        self._finished_at = [t for t in self._finished_at if now - t <= THROUGHPUT_WINDOW_S]
+        while self._finished_at and now - self._finished_at[0] > THROUGHPUT_WINDOW_S:
+            self._finished_at.popleft()
 
     def snapshot(self, queue_size):
         with self._lock:

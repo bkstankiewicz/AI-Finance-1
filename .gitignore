@@ -4,6 +4,7 @@ __pycache__/
 data/
 *.jsonl
 logs/
+training.py
 
 # Local AI context helpers (not pushed)
 Input_AI.md
