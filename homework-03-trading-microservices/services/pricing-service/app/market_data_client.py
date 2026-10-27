@@ -3,7 +3,7 @@ import urllib.request
 import threading
 import time
 import structlog
-from config import STREAM_URL, RECONNECTING_INTERVAL, SERVICE_NAME
+from config import STREAM_URL, RECONNECTING_INTERVAL
 from shared.trading_shared.audit import log_audit_error, AuditEventType
 
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))

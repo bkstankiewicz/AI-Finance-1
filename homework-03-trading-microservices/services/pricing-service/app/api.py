@@ -20,14 +20,12 @@ class PricingServiceApi(Bottle):
         return health_status
 
     def valuations(self):
-        """Get all valuations with optional limit"""
-        limit = int(request.query.get('limit', 20)) # type: ignore[attr-defined]
-        return {"valuations": self.valuation_engine.get_all_valuations(limit=limit)}
+        """Get all valuations"""
+        return {"valuations": self.valuation_engine.get_all_valuations()}
 
     def valuations_by_trade(self, trade_id):
-        """Get valuations for a specific trade_id with optional limit"""
-        limit = int(request.query.get('limit', 20)) # type: ignore[attr-defined]
-        return {"valuations": self.valuation_engine.get_valuation_by_trade_id(trade_id, limit=limit)}
+        """Get valuations for a specific trade_id"""
+        return {"valuations": self.valuation_engine.get_valuation_by_trade_id(trade_id)}
 
     def valuation_stream(self):
         """Stream requested"""
